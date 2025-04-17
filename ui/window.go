@@ -25,8 +25,10 @@ type Visualizer struct {
 	tx   chan screen.Texture
 	done chan struct{}
 
-	sz  size.Event
-	pos image.Rectangle
+	sz         size.Event
+	pos        image.Rectangle
+	center     image.Point
+	figureSize int
 }
 
 func (pw *Visualizer) Main() {
@@ -34,6 +36,8 @@ func (pw *Visualizer) Main() {
 	pw.done = make(chan struct{})
 	pw.pos.Max.X = 200
 	pw.pos.Max.Y = 200
+	pw.center = image.Point{X: 400, Y: 400}
+	pw.figureSize = 300
 	driver.Main(pw.run)
 }
 
