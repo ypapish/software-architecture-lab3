@@ -121,7 +121,10 @@ func (pw *Visualizer) handleEvent(e any, t screen.Texture) {
 
 	case mouse.Event:
 		if t == nil {
-			// TODO: Реалізувати реакцію на натискання кнопки миші.
+			if e.Button == mouse.ButtonRight && e.Direction == mouse.DirPress {
+				pw.center = image.Point{X: int(e.X), Y: int(e.Y)}
+				pw.w.Send(paint.Event{})
+			}
 		}
 
 	case paint.Event:
