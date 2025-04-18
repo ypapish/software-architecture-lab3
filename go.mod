@@ -1,4 +1,4 @@
-module "github.com/ypapish/software-architecture-lab3"
+module github.com/ypapish/software-architecture-lab3
 
 go 1.24
 
