@@ -26,4 +26,4 @@ jobs:
       run: go test ./...
 
     - name: Build cmd/painter
-      run: go build ./cmd/painter
+      run: go build -o cmd/painter/painter ./cmd/painter
