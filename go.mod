@@ -1,4 +1,4 @@
-module github.com/roman-mazur/architecture-lab-3
+module "github.com/ypapish/software-architecture-lab3/painter"
 
 go 1.24
 
