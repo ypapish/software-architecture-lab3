@@ -76,44 +76,32 @@ type Figure struct {
 }
 
 func (f Figure) Do(t screen.Texture) bool {
-	x := int(f.X * float64(t.Bounds().Dx()))
-	y := int(f.Y * float64(t.Bounds().Dy()))
+	centerX := int(f.X * float64(t.Bounds().Dx()))
+	centerY := int(f.Y * float64(t.Bounds().Dy()))
 
-	barWidth := 300 / 5
-	halfSize := 300 / 2
-	yellow := color.RGBA{255, 255, 0, 255}
+	const fixedFigureSize float64 = 300.0
+	figureSize := fixedFigureSize
 
-	vertical := image.Rect(x-barWidth/2, y-halfSize, x+barWidth/2, y+halfSize)
-	horizontal := image.Rect(x-barWidth/2, y-halfSize, x+halfSize, y-halfSize+barWidth)
+	halfSize := figureSize / 2
+	barWidth := figureSize / 5
+	yellow := color.RGBA{R: 255, G: 255, A: 255}
 
-	t.Fill(vertical, yellow, draw.Over)
-	t.Fill(horizontal, yellow, draw.Over)
+	verticalPart := image.Rect(
+		centerX-int(halfSize),               
+		centerY-int(halfSize),               
+		centerX-int(halfSize)+int(barWidth),
+		centerY+int(halfSize),             
+	)
+
+	horizontalPart := image.Rect(
+		centerX-int(halfSize),          
+		centerY-int(barWidth/2),      
+		centerX+int(halfSize),         
+		centerY+int(barWidth/2),       
+	)
+
+	t.Fill(verticalPart, yellow, draw.Src)
+	t.Fill(horizontalPart, yellow, draw.Src)
 
 	return false
-}
-
-type Move struct {
-    DX, DY  float64
-    Figures *[]Figure
-}
-
-func (m Move) Do(t screen.Texture) bool {
-    if m.Figures == nil {
-        return false
-    }
-    for i := range *m.Figures {
-        (*m.Figures)[i].X = clamp((*m.Figures)[i].X + m.DX, 0, 1)
-        (*m.Figures)[i].Y = clamp((*m.Figures)[i].Y + m.DY, 0, 1)
-    }
-    return false
-}
-
-func clamp(value, min, max float64) float64 {
-    if value < min {
-        return min
-    }
-    if value > max {
-        return max
-    }
-    return value
 }

@@ -13,8 +13,7 @@ import (
 type Parser struct {
 	lastBgColor painter.Operation
 	lastBgRect  *painter.BgRect
-	figures     []painter.Figure
-	moveOps     []painter.Operation
+	figures     []painter.Figure // Цей зріз тепер зберігає поточний стан фігур
 	hasUpdate   bool
 }
 
@@ -22,12 +21,10 @@ func (p *Parser) initialize() {
 	p.lastBgColor = nil
 	p.lastBgRect = nil
 	p.figures = nil
-	p.moveOps = nil
 	p.hasUpdate = false
 }
 
 func (p *Parser) Parse(in io.Reader) ([]painter.Operation, error) {
-	p.initialize()
 	scanner := bufio.NewScanner(in)
 	scanner.Split(bufio.ScanLines)
 
@@ -83,9 +80,10 @@ func (p *Parser) parseLine(line string) error {
 		if err := firstNonNil(err1, err2); err != nil {
 			return fmt.Errorf("invalid number in move: %v", err)
 		}
-		p.moveOps = append(p.moveOps, painter.Move{
-			DX: dx, DY: dy, Figures: &p.figures,
-		})
+		for i := range p.figures {
+			p.figures[i].X = clamp(p.figures[i].X+dx, 0, 1)
+			p.figures[i].Y = clamp(p.figures[i].Y+dy, 0, 1)
+		}
 	case "reset":
 		p.initialize()
 		p.lastBgColor = painter.Reset{}
@@ -112,10 +110,9 @@ func (p *Parser) finalize() []painter.Operation {
 		result = append(result, f)
 	}
 
-	result = append(result, p.moveOps...)
-
 	if p.hasUpdate {
 		result = append(result, painter.UpdateOp)
+		p.hasUpdate = false
 	}
 
 	return result
@@ -128,4 +125,14 @@ func firstNonNil(errs ...error) error {
 		}
 	}
 	return nil
+}
+
+func clamp(value, min, max float64) float64 {
+	if value < min {
+		return min
+	}
+	if value > max {
+		return max
+	}
+	return value
 }
